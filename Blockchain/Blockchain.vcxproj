@@ -139,6 +139,7 @@
     <ClInclude Include="block.h" />
     <ClInclude Include="blockchain.h" />
     <ClInclude Include="transaction.h" />
+    <ClInclude Include="validator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -35,5 +35,8 @@
     <ClInclude Include="transaction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="validator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
