@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="block.h" />
     <ClInclude Include="blockchain.h" />
+    <ClInclude Include="pos_blockchain.h" />
     <ClInclude Include="transaction.h" />
     <ClInclude Include="validator.h" />
   </ItemGroup>
