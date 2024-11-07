@@ -14,6 +14,7 @@ public:
 
     std::vector<Transaction> getPendingTransactions() const;
     Block getLatestBlock();
+    size_t getChainSize() const;
 
 private:
     std::vector<Block> chain;
