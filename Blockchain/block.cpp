@@ -3,14 +3,14 @@
 #include <sstream>
 #include <iomanip>
 
-Block::Block(int idx, std::vector<Transaction> txs, std::string prevHash)
-    : index(idx), transactions(txs), previousHash(prevHash) {
+Block::Block(int idx, std::vector<Transaction> txs, std::string prevHash, std::string validator)
+    : index(idx), transactions(txs), previousHash(prevHash), validatorId(validator) {
     timestamp = currentDateTime();
     hash = calculateHash();
 }
 
 std::string Block::calculateHash() {
-    std::string toHash = std::to_string(index) + timestamp + previousHash;
+    std::string toHash = std::to_string(index) + timestamp + previousHash + validatorId;
     for (const auto& tx : transactions) {
         toHash += tx.studentID + std::to_string(tx.type) + tx.details + std::to_string(tx.amount);
     }
@@ -33,4 +33,3 @@ std::string Block::currentDateTime() {
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %X", &ltm);
     return std::string(buffer);
 }
-

@@ -13,8 +13,9 @@ public:
     std::vector<Transaction> transactions;
     std::string previousHash;
     std::string hash;
+    std::string validatorId;
 
-    Block(int idx, std::vector<Transaction> txs, std::string previousHash);
+    Block(int idx, std::vector<Transaction> txs, std::string previousHash, std::string validator);
 
     std::string calculateHash();
 
