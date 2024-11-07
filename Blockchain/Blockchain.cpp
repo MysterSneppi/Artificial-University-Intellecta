@@ -43,3 +43,7 @@ void Blockchain::addTransaction(Transaction tx) {
 std::vector<Transaction> Blockchain::getPendingTransactions() const {
     return pendingTransactions;
 }
+
+size_t Blockchain::getChainSize() const {
+    return chain.size();
+}

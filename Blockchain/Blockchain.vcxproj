@@ -134,6 +134,7 @@
     <ClCompile Include="block.cpp" />
     <ClCompile Include="blockchain.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pos_blockchain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
