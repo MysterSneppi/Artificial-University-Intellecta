@@ -6,7 +6,7 @@ Blockchain::Blockchain() {
 
 Block Blockchain::createGenesisBlock() {
     std::vector<Transaction> txs;
-    return Block(0, txs, "0");
+    return Block(0, txs, "0","GenesisValidator");
 }
 
 Block Blockchain::getLatestBlock() {
@@ -46,4 +46,8 @@ std::vector<Transaction> Blockchain::getPendingTransactions() const {
 
 size_t Blockchain::getChainSize() const {
     return chain.size();
+}
+
+const std::vector<Block>& Blockchain::getChain() const {
+    return chain;
 }
