@@ -28,7 +28,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include=".babelrc" />
     <Content Include="app.js" />
+    <Content Include="blockchain.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
   </ItemGroup>
