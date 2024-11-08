@@ -1,0 +1,25 @@
+{
+  "name": "po-sblockchain-api",
+  "version": "0.0.0",
+  "description": "PoSBlockchainAPI",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "devDependencies": {
+    "eslint": "^8.21.0"
+  },
+  "eslintConfig": {},
+  "dependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/node": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1"
+  },
+  "scripts": {
+    "start": "babel-node app.js"
+  }
+}
+
