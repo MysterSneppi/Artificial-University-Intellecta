@@ -105,13 +105,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Artificial-University-Intellecta\OpenSSL_X64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Artificial-University-Intellecta\OpenSSL_X64\include;C:\Artificial-University-Intellecta\Artificial-University-Intellecta\LevelDB\leveldb\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Artificial-University-Intellecta\OpenSSL_X64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>"C:\Artificial-University-Intellecta\OpenSSL_X64\lib\libcrypto.lib";"C:\Artificial-University-Intellecta\OpenSSL_X64\lib\libssl.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Artificial-University-Intellecta\OpenSSL_X64\lib;C:\Artificial-University-Intellecta\Artificial-University-Intellecta\LevelDB\leveldb\build\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>"C:\Artificial-University-Intellecta\OpenSSL_X64\lib\libcrypto.lib";"C:\Artificial-University-Intellecta\OpenSSL_X64\lib\libssl.lib";"C:\Artificial-University-Intellecta\Artificial-University-Intellecta\LevelDB\leveldb\build\Debug\leveldb.lib";%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

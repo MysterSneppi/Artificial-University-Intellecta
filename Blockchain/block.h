@@ -18,6 +18,7 @@ public:
     Block(int idx, std::vector<Transaction> txs, std::string previousHash, std::string validator);
 
     std::string calculateHash();
+    std::string toString();
 
 private:
     std::string currentDateTime();
