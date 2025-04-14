@@ -51,3 +51,4 @@ size_t Blockchain::getChainSize() const {
 const std::vector<Block>& Blockchain::getChain() const {
     return chain;
 }
+

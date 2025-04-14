@@ -33,3 +33,25 @@ std::string Block::currentDateTime() {
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %X", &ltm);
     return std::string(buffer);
 }
+
+std::string Block::toString() {
+    std::stringstream ss;
+    ss << "Block index: " << index << "\n"
+        << "Timestamp: " << timestamp << "\n"
+        << "Previous hash: " << previousHash << "\n"
+        << "Hash: " << hash << "\n"
+        << "Validator: " << validatorId << "\n"
+        << "Transactions:\n";
+
+    for (const auto& tx : transactions) {
+        ss << "  - Student ID: " << tx.studentID << "\n"
+            << "    Type: " << (tx.type == GRADE ? "Grade" :
+                tx.type == ATTENDANCE ? "Attendance" :
+                tx.type == SKILL ? "Skill" :
+                tx.type == ENROLLMENT ? "Enrollment" : "Reward") << "\n"
+            << "    Details: " << tx.details << "\n"
+            << "    Amount: $" << tx.amount << "\n";
+    }
+
+    return ss.str();
+}
