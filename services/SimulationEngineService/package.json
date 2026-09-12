@@ -1,0 +1,41 @@
+{
+  "name": "simulation-engine-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Waterfall simulation engine for Artificial University Intellecta",
+  "author": {
+    "name": "Алексей Кармазин",
+    "url": "https://github.com/MysterSneppi"
+  },
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "start:prod": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "simulation",
+    "university",
+    "soa",
+    "waterfall",
+    "blockchain"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MysterSneppi/Artificial-University-Intellecta.git",
+    "directory": "services/SimulationEngineService"
+  },
+  "bugs": {
+    "url": "https://github.com/MysterSneppi/Artificial-University-Intellecta/issues"
+  },
+  "homepage": "https://github.com/MysterSneppi/Artificial-University-Intellecta#readme",
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}
