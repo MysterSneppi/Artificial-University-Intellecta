@@ -1,0 +1,1 @@
+llama-server -hf Qwen/Qwen3-0.6B-GGUF:Q8_0

@@ -1,0 +1,25 @@
+{
+  "name": "universitydataservice",
+  "version": "0.1.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "db:migrate": "tsx src/database/migrate.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "keywords": ["universityDataSrvice","mongodbData"],
+  "author": "MysterSneppi",
+  "license": "UNLICENSED",
+  "type": "module",
+
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongodb": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}
