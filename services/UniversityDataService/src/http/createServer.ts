@@ -6,6 +6,10 @@ import type {
   JsonSchemaToTsProvider,
 } from "@fastify/type-provider-json-schema-to-ts";
 
+import {
+  registerCampusRoutes,
+} from "./routes/CampusRoutes.js";
+
 import type {
   Db,
 } from "mongodb";
@@ -67,6 +71,11 @@ export function createServer(database: Db) {
   );
 
   registerUniversityRoutes(
+  server,
+  database,
+);
+
+registerCampusRoutes(
   server,
   database,
 );

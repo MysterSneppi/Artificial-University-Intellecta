@@ -51,6 +51,7 @@ export const universityGenerationSchema = {
       type: "string",
       minLength: 5,
       maxLength: 200,
+      pattern: "^https?://",
     },
 
     description: {

@@ -2,6 +2,10 @@ import type {
   GeneratedUniversity,
 } from "../models/University.js";
 
+import type {
+  GeneratedCampus,
+} from "../models/Campus.js";
+
 export interface UniversityDataClientOptions {
   baseUrl: string;
   timeoutMs?: number;
@@ -110,4 +114,55 @@ export class UniversityDataClient {
     typeof responseData.id !== "string"
     return responseData.id;
   }
+
+  async createCampus(
+  universityId: string,
+  campus: GeneratedCampus,
+): Promise<string> {
+  const response = await fetch(
+    `${this.baseUrl}/campuses`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      signal: AbortSignal.timeout(
+        this.timeoutMs,
+      ),
+
+      body: JSON.stringify({
+        university_id: universityId,
+        ...campus,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const details = await response.text();
+
+    throw new Error(
+      `UniversityDataService campus request failed: ` +
+        `${response.status} ${details}`,
+    );
+  }
+
+  const responseData: unknown =
+    await response.json();
+
+  if (
+    !isObject(responseData) ||
+    typeof responseData.id !== "string" ||
+    !/^[a-fA-F0-9]{24}$/.test(
+      responseData.id,
+    )
+  ) {
+    throw new Error(
+      "UniversityDataService returned an invalid campus id",
+    );
+  }
+
+  return responseData.id;
+}
 }

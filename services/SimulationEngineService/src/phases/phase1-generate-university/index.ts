@@ -14,16 +14,17 @@ import type {
   SimulationPhase,
 } from "../../engine/SimulationPhase.js";
 
-import type {
-  GeneratedUniversity,
-} from "../../models/University.js";
+import {
+  generateCampuses,
+} from "./generateCampuses.js";
 
 import {
-  universityGenerationSchema,
-} from "./UniversityGenerationSchema.js";
+  generateUniversity,
+} from "./generateUniversity.js";
 
 export interface GenerateUniversityResult {
   universityId: string;
+  campusIds: string[];
   message: string;
 }
 
@@ -49,63 +50,63 @@ export class GenerateUniversityPhase
         "University has already been generated",
       );
     }
+
+    const campusCount =
+      context.config.campusesPerUniversity;
+
+    if (
+      !Number.isInteger(campusCount) ||
+      campusCount < 1 ||
+      campusCount > 10
+    ) {
+      throw new Error(
+        "campusesPerUniversity must be an integer between 1 and 10",
+      );
+    }
   }
 
   async execute(
     context: SimulationContext,
   ): Promise<GenerateUniversityResult> {
-    console.log(
-      "Generating university data...",
-    );
+    const {
+      universityId,
+      university,
+    } = await generateUniversity({
+      simulationId:
+        context.simulation.id,
 
-    const university =
-      await this.aiGenerationClient
-        .generateJson<GeneratedUniversity>({
-          systemPrompt: [
-            "You generate data for a university simulation.",
-            "Return only valid JSON matching the provided schema.",
-            "Do not use Markdown.",
-            "Generate internally consistent fictional data.",
-          ].join(" "),
+      aiGenerationClient:
+        this.aiGenerationClient,
 
-          prompt: [
-            "Generate one fictional modern university.",
-            "Give it a distinctive fictional name.",
-            "The university name and website domain must correspond.",
-            "Do not use names of real universities.",
-            "Use a placeholder address in the format:",
-            "\"Улица <number>, дом <number>\".",
-            "Set is_active to true.",
-            `Simulation identifier: ${context.simulation.id}.`,
-            "Use the identifier only as a randomness cue.",
-            "Do not include the identifier in generated data.",
-            "/no_think",
-          ].join(" "),
-
-          schema: universityGenerationSchema,
-          temperature: 0.4,
-          maxTokens: 2_048,
-        });
-
-    console.log(
-      "University data generated:",
-    );
-
-    console.dir(university, {
-      depth: null,
+      universityDataClient:
+        this.universityDataClient,
     });
-
-    const universityId =
-      await this.universityDataClient
-        .createUniversity(university);
 
     context.simulation.universityId =
       universityId;
 
+    const campusIds =
+      await generateCampuses({
+        universityId,
+        universityName: university.name,
+
+        campusCount:
+          context.config
+            .campusesPerUniversity,
+
+        aiGenerationClient:
+          this.aiGenerationClient,
+
+        universityDataClient:
+          this.universityDataClient,
+      });
+
     return {
       universityId,
+      campusIds,
+
       message:
-        "University successfully generated and saved",
+        "University and campuses successfully generated and saved",
     };
   }
 }
