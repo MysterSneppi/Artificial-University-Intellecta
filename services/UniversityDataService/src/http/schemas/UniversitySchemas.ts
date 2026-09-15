@@ -1,0 +1,100 @@
+export const createUniversityBodySchema = {
+  type: "object",
+
+  additionalProperties: false,
+
+  required: [
+    "name",
+    "address",
+    "established_year",
+    "is_active",
+  ],
+
+  properties: {
+    name: {
+      type: "string",
+      minLength: 3,
+      maxLength: 150,
+    },
+
+    address: {
+      type: "string",
+      minLength: 5,
+      maxLength: 200,
+    },
+
+    established_year: {
+      type: "integer",
+      minimum: 1000,
+      maximum: new Date().getUTCFullYear(),
+    },
+
+    contact_email: {
+      type: "string",
+      minLength: 5,
+      maxLength: 150,
+    },
+
+    phone_number: {
+      type: "string",
+      minLength: 5,
+      maxLength: 50,
+    },
+
+    website: {
+      type: "string",
+      minLength: 5,
+      maxLength: 200,
+      pattern: "^https?://",
+    },
+
+    description: {
+      type: "string",
+      minLength: 20,
+      maxLength: 1_000,
+    },
+
+    is_active: {
+      type: "boolean",
+    },
+  },
+} as const;
+
+export const createUniversityResponseSchema = {
+  type: "object",
+
+  additionalProperties: false,
+
+  required: [
+    "id",
+  ],
+
+  properties: {
+    id: {
+      type: "string",
+      pattern: "^[a-fA-F0-9]{24}$",
+    },
+  },
+} as const;
+
+export const universityConflictResponseSchema = {
+  type: "object",
+
+  additionalProperties: false,
+
+  required: [
+    "code",
+    "message",
+  ],
+
+  properties: {
+    code: {
+      type: "string",
+      const: "UNIVERSITY_NAME_ALREADY_EXISTS",
+    },
+
+    message: {
+      type: "string",
+    },
+  },
+} as const;

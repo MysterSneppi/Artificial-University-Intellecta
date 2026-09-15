@@ -1,5 +1,15 @@
 import { randomUUID } from "node:crypto";
+import {
+  AiGenerationClient,
+} from "./clients/AiGenerationClient.js";
 
+import {
+  UniversityDataClient,
+} from "./clients/UniversityDataClient.js";
+
+import {
+  environment,
+} from "./config/Environment.js";
 import { defaultSimulationConfig } from "./config/SimulationConfig.js";
 import { SimulationEngine } from "./engine/SimulationEngine.js";
 import { GenerateUniversityPhase } from "./phases/phase1-generate-university/index.js";
@@ -8,6 +18,24 @@ import type { SimulationContext } from "./engine/SimulationContext.js";
 import type { Simulation } from "./models/Simulation.js";
 
 async function main(): Promise<void> {
+
+const aiGenerationClient =
+  new AiGenerationClient({
+    baseUrl: environment.llamaServerUrl,
+    model: environment.llamaModel,
+  });
+
+const universityDataClient =
+  new UniversityDataClient({
+    baseUrl:
+      environment.universityDataServiceUrl,
+  });
+
+await Promise.all([
+  aiGenerationClient.healthCheck(),
+  universityDataClient.healthCheck(),
+]);
+
   const simulation: Simulation = {
     id: randomUUID(),
     state: "created",
@@ -23,8 +51,11 @@ async function main(): Promise<void> {
   };
 
   const engine = new SimulationEngine([
-    new GenerateUniversityPhase(),
-  ]);
+  new GenerateUniversityPhase(
+    aiGenerationClient,
+    universityDataClient,
+  ),
+]);
 
   const results = await engine.run(context);
 
