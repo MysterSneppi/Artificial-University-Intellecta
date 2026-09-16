@@ -6,6 +6,10 @@ import type {
   UniversityDataClient,
 } from "../../clients/UniversityDataClient.js";
 
+import {
+  CampusNameConflictError,
+} from "../../clients/university-data/createCampus.js";
+
 import type {
   GeneratedCampus,
 } from "../../models/Campus.js";
@@ -13,6 +17,10 @@ import type {
 import {
   campusGenerationSchema,
 } from "./CampusGenerationSchema.js";
+
+import {
+  generateUniqueEntity,
+} from "./generateUniqueEntity.js";
 
 export interface GenerateCampusesOptions {
   universityId: string;
@@ -22,118 +30,153 @@ export interface GenerateCampusesOptions {
   universityDataClient: UniversityDataClient;
 }
 
-function normalizeCampusName(
-  name: string,
-): string {
-  return name.trim().toLowerCase();
+export interface SavedCampus {
+  campusId: string;
+  campusName: string;
 }
 
-function makeUniqueCampusName(
-  generatedName: string,
-  campusNumber: number,
-  usedNames: ReadonlySet<string>,
-): string {
-  const baseName =
-    generatedName.trim() ||
-    `Campus ${campusNumber}`;
-
-  if (
-    !usedNames.has(
-      normalizeCampusName(baseName),
-    )
-  ) {
-    return baseName;
+function isRetryableAiError(
+  error: unknown,
+): boolean {
+  if (!(error instanceof Error)) {
+    return false;
   }
 
-  let suffix = campusNumber;
-  let uniqueName = `${baseName} ${suffix}`;
-
-  while (
-    usedNames.has(
-      normalizeCampusName(uniqueName),
+  return (
+    error.message.includes(
+      "returned invalid JSON",
+    ) ||
+    error.message.includes(
+      "returned empty",
+    ) ||
+    error.message.includes(
+      "does not match schema",
     )
-  ) {
-    suffix += 1;
-    uniqueName = `${baseName} ${suffix}`;
-  }
-
-  return uniqueName;
+  );
 }
 
 export async function generateCampuses(
   options: GenerateCampusesOptions,
-): Promise<string[]> {
-  const campusIds: string[] = [];
+): Promise<SavedCampus[]> {
+  const campuses: SavedCampus[] = [];
+
   const usedNames = new Set<string>();
-  const usedNamesForPrompt: string[] = [];
+  const rejectedNames = new Set<string>();
 
   for (
     let campusNumber = 1;
     campusNumber <= options.campusCount;
     campusNumber += 1
   ) {
-    console.log(
-      `Generating campus ${campusNumber}...`,
-    );
+    const generated =
+      await generateUniqueEntity<
+        GeneratedCampus,
+        string
+      >({
+        entityLabel:
+          `Campus ${campusNumber}`,
 
-    const candidate =
-      await options.aiGenerationClient
-        .generateJson<GeneratedCampus>({
-          systemPrompt: [
-            "You generate campus data for a university simulation.",
-            "Return only valid JSON matching the schema.",
-            "Do not use Markdown.",
-            "Generate internally consistent fictional data.",
-          ].join(" "),
-
-          prompt: [
-            `University name: ${options.universityName}.`,
-            `Generate campus number ${campusNumber}.`,
-            "Use a distinctive fictional campus name.",
-            "Do not repeat previously generated names.",
-            `Previously used names: ${
-              usedNamesForPrompt.join(", ") ||
-              "none"
-            }.`,
-            "Use an address in the format:",
-            "\"Улица <number>, дом <number>\".",
-            "Set is_active to true.",
-          ].join(" "),
-
-          schema: campusGenerationSchema,
-          temperature: 0.5,
-          maxTokens: 1_024,
-        });
-
-    const uniqueName =
-      makeUniqueCampusName(
-        candidate.name,
-        campusNumber,
+        maxGenerationAttempts: 5,
         usedNames,
-      );
+        rejectedNames,
 
-    const campus: GeneratedCampus = {
-      ...candidate,
-      name: uniqueName,
-    };
+        async generate(context) {
+          console.log(
+            `Generating campus ${campusNumber}, ` +
+              `attempt ${context.attempt}...`,
+          );
 
-    const campusId =
-      await options.universityDataClient
-        .createCampus(
-          options.universityId,
+          return options.aiGenerationClient
+            .generateJson<GeneratedCampus>({
+              systemPrompt: [
+                "You generate campus data for a university simulation.",
+                "Return only valid JSON matching the schema.",
+                "Do not use Markdown.",
+                "Generate internally consistent fictional data.",
+              ].join(" "),
+
+              prompt: [
+                `University: ${options.universityName}.`,
+                `Generate campus number ${campusNumber}.`,
+
+                `Already used names: ${
+                  context.usedNames.join(
+                    ", ",
+                  ) || "none"
+                }.`,
+
+                `Rejected names: ${
+                  context.rejectedNames.join(
+                    ", ",
+                  ) || "none"
+                }.`,
+
+                "Generate a different campus name.",
+                "Use an address in the format:",
+                "\"Улица <number>, дом <number>\".",
+                "Set is_active to true.",
+              ].join(" "),
+
+              schema:
+                campusGenerationSchema,
+
+              temperature: 0.7,
+              maxTokens: 1_024,
+            });
+        },
+
+        getName(campus) {
+          return campus.name;
+        },
+
+        withName(campus, name) {
+          return {
+            ...campus,
+            name,
+          };
+        },
+
+        async save(campus) {
+          return options
+            .universityDataClient
+            .createCampus(
+              options.universityId,
+              campus,
+            );
+        },
+
+        isNameConflict(error) {
+          return (
+            error instanceof
+            CampusNameConflictError
+          );
+        },
+
+        isRetryableGenerationError:
+          isRetryableAiError,
+
+        createFallbackName(
           campus,
-        );
+          fallbackAttempt,
+        ) {
+          return (
+            `${campus.name.trim()} ` +
+            `${campusNumber}-${fallbackAttempt}`
+          );
+        },
+      });
 
-    campusIds.push(campusId);
-    usedNames.add(
-      normalizeCampusName(campus.name),
-    );
-    usedNamesForPrompt.push(campus.name);
+    campuses.push({
+      campusId: generated.result,
+      campusName: generated.entity.name,
+    });
 
     console.log(
-      `Campus saved: ${campus.name} (${campusId})`,
+      `Campus saved: ` +
+        `${generated.entity.name} ` +
+        `(${generated.result})`,
     );
   }
 
-  return campusIds;
+  return campuses;
 }

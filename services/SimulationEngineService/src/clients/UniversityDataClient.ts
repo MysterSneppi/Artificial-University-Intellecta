@@ -1,55 +1,76 @@
 import type {
-  GeneratedUniversity,
-} from "../models/University.js";
+  FacultyForCreation,
+} from "../models/Faculty.js";
 
 import type {
   GeneratedCampus,
 } from "../models/Campus.js";
+
+import type {
+  GeneratedUniversity,
+} from "../models/University.js";
+
+import {
+  createCampus,
+} from "./university-data/createCampus.js";
+
+import {
+  createFaculty,
+} from "./university-data/createFaculty.js";
+
+import {
+  createUniversity,
+} from "./university-data/createUniversity.js";
+
+import type {
+  UniversityDataClientContext,
+} from "./university-data/UniversityDataClientContext.js";
+
+import {
+  isObject,
+  readErrorResponse,
+} from "./university-data/UniversityDataResponse.js";
 
 export interface UniversityDataClientOptions {
   baseUrl: string;
   timeoutMs?: number;
 }
 
-function isObject(
-  value: unknown,
-): value is Record<string, unknown> {
-  return (
-    typeof value === "object" &&
-    value !== null
-  );
-}
-
 export class UniversityDataClient {
-  private readonly baseUrl: string;
-  private readonly timeoutMs: number;
+  private readonly context:
+    UniversityDataClientContext;
 
   constructor(
     options: UniversityDataClientOptions,
   ) {
-    this.baseUrl = options.baseUrl.replace(
-      /\/+$/,
-      "",
-    );
+    this.context = {
+      baseUrl: options.baseUrl.replace(
+        /\/+$/,
+        "",
+      ),
 
-    this.timeoutMs =
-      options.timeoutMs ?? 30_000;
+      timeoutMs:
+        options.timeoutMs ?? 30_000,
+    };
   }
 
   async healthCheck(): Promise<void> {
     const response = await fetch(
-      `${this.baseUrl}/health`,
+      `${this.context.baseUrl}/health`,
       {
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(
+          10_000,
+        ),
       },
     );
 
     if (!response.ok) {
-      const details = await response.text();
+      const error =
+        await readErrorResponse(response);
 
       throw new Error(
         `UniversityDataService health check failed: ` +
-          `${response.status} ${details}`,
+          `${response.status} ${error.details}`,
       );
     }
 
@@ -59,7 +80,8 @@ export class UniversityDataClient {
     if (
       !isObject(responseData) ||
       responseData.status !== "ok" ||
-      responseData.database !== "connected"
+      responseData.database !==
+        "connected"
     ) {
       throw new Error(
         "UniversityDataService returned an invalid health response",
@@ -67,102 +89,34 @@ export class UniversityDataClient {
     }
   }
 
-  async createUniversity(
+  createUniversity(
     university: GeneratedUniversity,
   ): Promise<string> {
-    const response = await fetch(
-      `${this.baseUrl}/universities`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        signal: AbortSignal.timeout(
-          this.timeoutMs,
-        ),
-
-        body: JSON.stringify(university),
-      },
-    );
-
-    if (!response.ok) {
-      const details = await response.text();
-
-      throw new Error(
-        `UniversityDataService request failed: ` +
-          `${response.status} ${details}`,
-      );
-    }
-
-    const responseData: unknown =
-      await response.json();
-
-    if (
-      !isObject(responseData) ||
-      typeof responseData.id !== "string" ||
-      !/^[a-fA-F0-9]{24}$/.test(
-        responseData.id,
-      )
-    ) {
-      throw new Error(
-        "UniversityDataService returned an invalid university id",
-      );
-    }
-
-    typeof responseData.id !== "string"
-    return responseData.id;
-  }
-
-  async createCampus(
-  universityId: string,
-  campus: GeneratedCampus,
-): Promise<string> {
-  const response = await fetch(
-    `${this.baseUrl}/campuses`,
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      signal: AbortSignal.timeout(
-        this.timeoutMs,
-      ),
-
-      body: JSON.stringify({
-        university_id: universityId,
-        ...campus,
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    const details = await response.text();
-
-    throw new Error(
-      `UniversityDataService campus request failed: ` +
-        `${response.status} ${details}`,
+    return createUniversity(
+      this.context,
+      university,
     );
   }
 
-  const responseData: unknown =
-    await response.json();
-
-  if (
-    !isObject(responseData) ||
-    typeof responseData.id !== "string" ||
-    !/^[a-fA-F0-9]{24}$/.test(
-      responseData.id,
-    )
-  ) {
-    throw new Error(
-      "UniversityDataService returned an invalid campus id",
+  createCampus(
+    universityId: string,
+    campus: GeneratedCampus,
+  ): Promise<string> {
+    return createCampus(
+      this.context,
+      universityId,
+      campus,
     );
   }
 
-  return responseData.id;
-}
+  createFaculty(
+    campusId: string,
+    faculty: FacultyForCreation,
+  ): Promise<string> {
+    return createFaculty(
+      this.context,
+      campusId,
+      faculty,
+    );
+  }
 }

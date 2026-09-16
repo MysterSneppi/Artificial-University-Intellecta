@@ -6,10 +6,12 @@ export interface SimulationConfig {
   maxLessonsPerDay: number;
   studyDaysPerWeek: 5 | 6;
   semesterWeeks: number;
+  facultiesPerCampus: number;
 }
 
 export const defaultSimulationConfig:
   SimulationConfig = {
+    facultiesPerCampus: 2,
     campusesPerUniversity: 2,
     applicantCount: 1300,
     maxStudentsPerSpecialty: 60,

@@ -2,9 +2,14 @@ import Fastify from "fastify";
 import {
   registerUniversityRoutes,
 } from "./routes/UniversityRoutes.js";
+
 import type {
   JsonSchemaToTsProvider,
 } from "@fastify/type-provider-json-schema-to-ts";
+
+import {
+  registerFacultyRoutes,
+} from "./routes/FacultyRoutes.js";
 
 import {
   registerCampusRoutes,
@@ -75,7 +80,13 @@ export function createServer(database: Db) {
   database,
 );
 
+
 registerCampusRoutes(
+  server,
+  database,
+);
+
+registerFacultyRoutes(
   server,
   database,
 );
