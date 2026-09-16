@@ -3,6 +3,14 @@ import type {
 } from "../models/Faculty.js";
 
 import type {
+  DepartmentForCreation,
+} from "../models/Department.js";
+
+import {
+  createDepartment,
+} from "./university-data/createDepartment.js";
+
+import type {
   GeneratedCampus,
 } from "../models/Campus.js";
 
@@ -119,4 +127,16 @@ export class UniversityDataClient {
       faculty,
     );
   }
+
+  createDepartment(
+  facultyId: string,
+  department: DepartmentForCreation,
+): Promise<string> {
+  return createDepartment(
+    this.context,
+    facultyId,
+    department,
+  );
+}
+
 }

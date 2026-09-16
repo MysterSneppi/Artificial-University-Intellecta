@@ -15,6 +15,9 @@ import type {
 } from "../../engine/SimulationPhase.js";
 
 import {
+  generateDepartments,
+} from "./generateDepartments.js";
+import {
   generateCampuses,
 } from "./generateCampuses.js";
 
@@ -31,6 +34,7 @@ export interface GenerateUniversityResult {
   campusIds: string[];
   message: string;
   facultyIds: string[];
+  departmentIds: string[];
 }
 
 export class GenerateUniversityPhase
@@ -79,6 +83,21 @@ if (
 ) {
   throw new Error(
     "facultiesPerCampus must be an integer between 1 and 10",
+  );
+}
+
+const departmentsPerFaculty =
+  context.config.departmentsPerFaculty;
+
+if (
+  !Number.isInteger(
+    departmentsPerFaculty,
+  ) ||
+  departmentsPerFaculty < 1 ||
+  departmentsPerFaculty > 10
+) {
+  throw new Error(
+    "departmentsPerFaculty must be an integer between 1 and 10",
   );
 }
 
@@ -141,6 +160,29 @@ if (
     universityDataClient:
       this.universityDataClient,
   });
+
+  const departments =
+  await generateDepartments({
+    universityId,
+    universityName: university.name,
+    universityWebsite:
+      university.website,
+
+    faculties,
+
+    departmentsPerFaculty:
+      context.config
+        .departmentsPerFaculty,
+
+    aiGenerationClient:
+      this.aiGenerationClient,
+
+    universityDataClient:
+      this.universityDataClient,
+  });
+
+
+  
     return {
       universityId,
       campusIds: campuses.map(
@@ -149,8 +191,12 @@ if (
 facultyIds: faculties.map(
     (faculty) => faculty.facultyId,
   ),
+  departmentIds: departments.map(
+  (department) =>
+    department.departmentId,
+),
       message:
-        "University and campuses successfully generated and saved",
+         "University, campuses, faculties and departments successfully generated and saved",
     };
   }
 }

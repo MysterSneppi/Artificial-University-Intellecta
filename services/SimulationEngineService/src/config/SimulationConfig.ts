@@ -7,6 +7,7 @@ export interface SimulationConfig {
   studyDaysPerWeek: 5 | 6;
   semesterWeeks: number;
   facultiesPerCampus: number;
+  departmentsPerFaculty: number;
 }
 
 export const defaultSimulationConfig:
@@ -19,4 +20,5 @@ export const defaultSimulationConfig:
     maxLessonsPerDay: 4,
     studyDaysPerWeek: 5,
     semesterWeeks: 16,
+    departmentsPerFaculty: 2,
   };

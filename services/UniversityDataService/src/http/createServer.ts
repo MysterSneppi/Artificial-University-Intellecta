@@ -8,6 +8,10 @@ import type {
 } from "@fastify/type-provider-json-schema-to-ts";
 
 import {
+  registerDepartmentRoutes,
+} from "./routes/DepartmentRoutes.js";
+
+import {
   registerFacultyRoutes,
 } from "./routes/FacultyRoutes.js";
 
@@ -82,6 +86,11 @@ export function createServer(database: Db) {
 
 
 registerCampusRoutes(
+  server,
+  database,
+);
+
+registerDepartmentRoutes(
   server,
   database,
 );
